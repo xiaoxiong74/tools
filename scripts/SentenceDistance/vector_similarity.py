@@ -15,7 +15,9 @@ import numpy as np
 from scipy.linalg import norm
 
 model_file = '../../bin/news_12g_baidubaike_20g_novel_90g_embedding_64.bin'
-model = gensim.models.KeyedVectors.load_word2vec_format(model_file, binary=True)
+
+# 这里的limit 是取词频最高的100000个词，不要则表示加载全部词向量
+model = gensim.models.KeyedVectors.load_word2vec_format(model_file, binary=True, limit=100000)
 
 
 def vector_similarity(s1, s2):
@@ -25,7 +27,9 @@ def vector_similarity(s1, s2):
         v = np.zeros(64)
         # 每一个词获取其对应的 Vector
         for word in words:
-            v += model[word]
+            # 若word不在model[word]中则忽略
+            if word in model.vocab:
+                v += model[word]
         # Vector 相加并求平均
         v /= len(words)
         return v
@@ -33,27 +37,29 @@ def vector_similarity(s1, s2):
     # 计算其夹角余弦值
     return np.dot(v1, v2) / (norm(v1) * norm(v2))
 
-s1 = '帮我查询下流量'
-s2 = '查流量'
-print(vector_similarity(s1, s2))
+# s1 = '帮我查询下流量'
+# s2 = '查流量'
+# print(vector_similarity(s1, s2))
 # 结果：0.9102000439587189
 
+
 strings = [
-    '你在干什么',
-    '你在干啥子',
-    '你在做什么',
-    '你好啊',
-    '我喜欢吃香蕉'
+    '查询渝北张三的话费',
+    '查流量',
+    '查下重庆的天气',
+    '查询重庆的抢劫案',
+    '查冉家坝的案子'
 ]
 
-target = '你在干啥'
+target = '查询渝北的杀人案子'
 
 for string in strings:
     print(string, vector_similarity(string, target))
 '''
-结果：你在干什么 0.8785495016487205
-     你在干啥子 0.9789649689827054
-     你在做什么 0.8781992402695276
-     你好啊 0.5174225914249864
-     我喜欢吃香蕉 0.5829908414506211
+结果：
+查询渝北张三的话费 0.7075828565367552
+查流量 0.39603366589562944
+查下重庆的天气 0.4157257718381809
+查询重庆的抢劫案 0.8367542312365408
+查冉家坝的案子 0.7903167412307478
 '''
