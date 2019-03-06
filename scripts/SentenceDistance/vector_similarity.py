@@ -27,7 +27,7 @@ def vector_similarity(s1, s2):
         v = np.zeros(64)
         # 每一个词获取其对应的 Vector
         for word in words:
-            # 若word不在model[word]中则忽略
+            # 未登录词处理(即输入的词不在model.vocab中则忽略掉)
             if word in model.vocab:
                 v += model[word]
         # Vector 相加并求平均
